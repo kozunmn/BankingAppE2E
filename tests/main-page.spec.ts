@@ -24,7 +24,7 @@ test.describe(`When we go to the bank's home page`, () => {
   test('no errors should appear on the page', async () => {
     const { networkErrors, consoleErrors } = await actionsHelper.scrollToBottomAndCollectErrors(); // tak jak w przypadku każdych testów staramy się oddzielić logikę biznesową od funkcji testowej: czytelność, bo przegladając test chcemy się skupić na scenariuszu, łatwe utrzymanie/refactoring
     expect.soft(networkErrors, 'Network errors').toHaveLength(0);
-    expect.soft(consoleErrors, 'Console errors').toHaveLength(0);
+    expect.soft(consoleErrors, 'Console errors').toHaveLength(0); // soft asercje, bo chcemy zebrać wszystko za jednym uruchomieniem
   });
 });
 

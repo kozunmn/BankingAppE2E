@@ -1,6 +1,6 @@
 // tests/pages/LoginPage.ts
 import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './pages/base-page.po';
+import { BasePage } from './base-page.po';
 
 export class TransfersFromOtherBanksPage extends BasePage {
     private readonly expectedSiteHeader = 'Przelewy z innych banków';

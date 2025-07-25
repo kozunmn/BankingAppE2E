@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BaseModal } from '../modals/base-modal.po';
-import { TransfersFromOtherBanksPage } from '../transfers-from-other-banks-page.po';
+import { TransfersFromOtherBanksPage } from '../pages/transfers-from-other-banks-page.po';
 
 export class LoginModal extends BaseModal {
     constructor(page: Page) {
