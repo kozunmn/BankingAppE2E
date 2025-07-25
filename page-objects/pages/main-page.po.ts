@@ -1,4 +1,3 @@
-// tests/pages/LoginPage.ts
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base-page.po';
 import { LoginModal } from '../modals/login-modal.po';
