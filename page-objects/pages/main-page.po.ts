@@ -1,8 +1,7 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, BrowserContext, expect } from '@playwright/test';
 import { BasePage } from './base-page.po';
 import { LoginModal } from '../modals/login-modal.po';
 import { ContactFormPage } from './contact-form-page.po';
-import { Context } from 'vm';
 
 export class MainPage extends BasePage {
 
@@ -30,7 +29,7 @@ export class MainPage extends BasePage {
         return new LoginModal(this.page) // nastąpiła akcja zmieniajaca kontekst. Zgodnie z wzorcem PO powinnyśmy zwrócić nowy obiekt
     }
 
-    async gotoContactFormPage(context: Context): Promise<ContactFormPage> {
+    async gotoContactFormPage(context: BrowserContext): Promise<ContactFormPage> {
         const writeToUsLink = this.page.getByText('Napisz do nas');
         await expect(writeToUsLink).toBeEnabled();
         await expect(writeToUsLink).toBeVisible();
