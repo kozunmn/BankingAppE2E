@@ -1,12 +1,12 @@
 import { Page, Locator, expect } from '@playwright/test';
 
 
-export async function navigateToByUrl(page: Page, urlPath: string = "/", baseURL?: string): Promise<Page> {
-    const targetUrl = urlPath === "/" ? baseURL ?? urlPath : urlPath;
-    const expectedUrl = new RegExp(`${targetUrl}.*`);
-    await page.goto(urlPath, { waitUntil: 'networkidle' });
+export async function navigateToByUrl<TPage extends object>(page: Page, urlPath: string = "/", createPage: (page: Page) => TPage
+): Promise<TPage> {
+    const expectedUrl = new RegExp(`${urlPath}.*`);
+    await page.goto("/" + urlPath, { waitUntil: 'networkidle' });
     await expect(page).toHaveURL(expectedUrl);
-    return page;
+    return createPage(page);
 }
 
 export async function scrollToBottomAndCollectErrors() {

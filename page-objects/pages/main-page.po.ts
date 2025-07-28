@@ -1,17 +1,40 @@
 import { Page, Locator, BrowserContext, expect } from '@playwright/test';
 import { BasePage } from './base-page.po';
-import { LoginModal } from '../modals/login-modal.po';
 import { ContactFormPage } from './contact-form-page.po';
+import { NavWithLogoComponent } from '../navi-with-logo.po';
 
 export class MainPage extends BasePage {
+    /* 
+    Komponenty (czyli złożone obiekty z własnymi metodami) — inicjalizowane w konstruktorze, co gwarantuje, że komponent jest spójny przez cały cykl życia Page Objecta
+    Można użyć getter'ów - podejście zależy od projektu. Generalnie jeśli komponent ma stan (np. zapamiętuje coś, ma cache, trzyma dane), warto go stworzyć raz
 
-    // TODO Page Objects
+    Elementy UI (czyli pojedyncze Locatory) — udostępniamy przez gettery; tworzymy nową instancję przy każdym wywołaniu
+   */
+    readonly navWithLogoComponent: NavWithLogoComponent
 
+    // page, bo przekazujemy instancję strony
+    // this.navWithLogoComponent = new NavWithLogoComponent(this.page) — tzw. eager; łatwa reużywalność
+    constructor(page: Page) {
+        super(page);
+        this.navWithLogoComponent = new NavWithLogoComponent(this.page);
+    }
+
+    /*
+    Gettery dla elementów UI, ponieważ:
+    tzw. lazy evaluation – locator tworzony tylko wtedy, gdy jest potrzebny
+    Mniej kodu w konstruktorze – konstruktor pozostaje czysty i przejrzysty
+    Łatwiejsze refaktoryzowanie – zmiana selektora w jednym miejscu
+    Zgodność z zasadą SRP (Single Responsibility Principle) – konstruktor nie miesza się z logiką UI
+    Na minus(-) to, ze każde wywołanie this.element tworzy nowy locator (ale Playwright jest zoptymalizowany pod tym kątem, więc to nie problem w praktyce)
+    */
+    get writeToUsLink() {
+        return this.page.getByText('Napisz do nas');
+    }
 
     async gotoMainPage(): Promise<MainPage> { // Promise jawnie wskazany, aby kod był czytelniejszy
         await this.page.goto('/', { waitUntil: 'networkidle' }); // domyślny waitUntil: 'load' może być flaky przy aplikacjach typu SPA(React, Angular...)
-        await this.closeCookiesModal(this.page);
-        return this; // zgodnie ze wzorce PO w wyniku akcji .goto() zmienia się kontekst, zatem zwracamy nowy po
+        await this.closeCookiesModal();
+        return this; // zgodnie ze wzorcem PO w wyniku akcji .goto() zmienia się kontekst, zatem zwracamy nowy po
     }
 
     /*
@@ -21,22 +44,12 @@ export class MainPage extends BasePage {
     Lepsza diagnostyka błędów - jeśli element nie pojawi się na czas — expect(...).toBeVisible() zwróci jasny komunikat typu: „Element niewidoczny”. Samo click() w przypadku problemów może rzucić ogólny timeout bez jasnego kontekstu
     Wymuszenie kolejności zdarzeń - ręczne/jawne oczekiwanie pozwala dokładniej zsynchronizować interakcje z rzeczywistym stanem UI i odczuciami użytkownika. Użytkownik może postrzegać "gotowość" elementu inaczej niż Playwright technicznie to ocenia
     */
-    async openLoginModal(): Promise<LoginModal> {
-        const logowanie = this.page.locator('[href="#!login"]');
-        await expect(logowanie).toBeEnabled(); // świadome ręczne/jawne oczekiwanie
-        await expect(logowanie).toBeVisible(); // świadome ręczne/jawne oczekiwanie
-        await logowanie.click(); // gdy już ręcznie obsłużyliśmy dostępność elementu możemy wykonać akcję
-        return new LoginModal(this.page) // nastąpiła akcja zmieniajaca kontekst. Zgodnie z wzorcem PO powinnyśmy zwrócić nowy obiekt
-    }
-
     async gotoContactFormPage(context: BrowserContext): Promise<ContactFormPage> {
-        const writeToUsLink = this.page.getByText('Napisz do nas');
-        await expect(writeToUsLink).toBeEnabled();
-        await expect(writeToUsLink).toBeVisible();
+        await this.waitForLoaded(this.writeToUsLink);
         // Promise.all, bo zapewnia minimalne opóźnienie + wygodne przy wielu równoległych oczekiwaniach. Niekiedy chcemy łączyć więcej niż jedną akcję i jeden listener, a taki zapis – równoległy, od początku stosowany - wprowadzi jednolitość/spójność w kodzie 
         const [newPage] = await Promise.all([
             context.waitForEvent('page'),
-            writeToUsLink.click(),
+            this.writeToUsLink.click(),
         ]);
         await newPage.waitForResponse((resp) => resp.url().includes('/contactform/initContactForm')
             && resp.status() === 200); // samo "newPage.waitForResponse('**/contactform/initContactForm')" również zadziała, ale Playwright nie ma auto-weryfikacji statusów, a chcemy mieć pewność, że request się wykonał poprawnie 

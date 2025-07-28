@@ -7,18 +7,18 @@ let mainPage: MainPage;
 // .gotoMainPage() powtarza się dla kazdego testu, więc wynosimy do before
 test.beforeEach(async ({ page }) => {
   mainPage = await new MainPage(page)
-  .gotoMainPage(); // zgodnie ze wzorcem PO zapisujemy obiekt zwrócony przez gotoMainPage() jako mainPage. Teraz możemy na tym kontekście pracować
+    .gotoMainPage(); // zgodnie ze wzorcem PO zapisujemy obiekt zwrócony przez gotoMainPage() jako mainPage. Teraz możemy na tym kontekście pracować
 });
 
 test.describe(`When we go to the bank's home page`, () => {
   test('the login modal should open correctly', async () => {
-    const loginModal = await mainPage.openLoginModal(); // analogicznie jak wyżej. Akcja zmienia kontekst, więc przechodzimy do nowego page objectu
+    const loginModal = await mainPage.navWithLogoComponent.openLoginModal(); // analogicznie jak wyżej. Akcja zmienia kontekst, więc przechodzimy do nowego page objectu
     await loginModal.validateModalTitle('Logowanie do Millenetu');
   });
 
-  test('the link to the contact form should redirect correctly', async ({context}) => {
+  test('the link to the contact form should redirect correctly', async ({ context }) => {
     const contactFormPage = await mainPage.gotoContactFormPage(context); // przekazujemy context, bo otwiera się strona w nowej zakładce w ramach tego samego browserContext 
-    await contactFormPage.validateH2HeaderText();
+    await contactFormPage.validateH2Text();
   });
 
   test('no errors should appear on the page', async () => {
@@ -30,8 +30,8 @@ test.describe(`When we go to the bank's home page`, () => {
 
 test.describe('When the login modal displays', () => {
   test('links should correctly redirect to articles', async () => {
-    const loginModal = await mainPage.openLoginModal();
-    const newPage = await loginModal.gotoTransfersFromOtherBanksPage();
-    await newPage.validateH1HeaderText();
+    const loginModal = await mainPage.navWithLogoComponent.openLoginModal();
+    const transfersFromOtherBanksPage = await loginModal.gotoTransfersFromOtherBanksPage(); // dzięki PO mamy modularność: funkcje testowe przypominają składanie klocków - dokładnie widzimy w jakim kontekście się znajdujemy
+    await transfersFromOtherBanksPage.validateH1Text();
   });
 });

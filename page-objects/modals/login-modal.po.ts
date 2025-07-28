@@ -7,13 +7,16 @@ export class LoginModal extends BaseModal {
         super(page, '#dialog-msg');
     }
 
+    get transfersFromOtherBanksLink() {
+        return this.modalLocator.locator('a[href*="przelewy-z-innych-bankow"]');
+    }
+
     async gotoTransfersFromOtherBanksPage(): Promise<TransfersFromOtherBanksPage> {
-        const link = this.modalLocator.locator('a[href*="przelewy-z-innych-bankow"]');
-        await expect(link).toBeEnabled();
-        await expect(link).toBeVisible();
+        await expect(this.transfersFromOtherBanksLink).toBeEnabled();
+        await expect(this.transfersFromOtherBanksLink).toBeVisible();
         const [newPage] = await Promise.all([
             this.page.context().waitForEvent('page'),
-            link.click(),
+            this.transfersFromOtherBanksLink.click(),
         ]);
         await newPage.waitForLoadState('networkidle');
         await expect(newPage).toHaveURL(/bankowosc-elektroniczna\/przelewy-z-innych-bankow/);
