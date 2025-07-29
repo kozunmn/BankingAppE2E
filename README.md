@@ -5,7 +5,7 @@ Files *tests/main-page.spec.ts* and *page-objects/pages/main-page.po.ts* contain
 
 ## 📦 Requirements
 
-- Node.js (recommended version: 20+)
+- Node.js (recommended version: 18+)
 - Installed dependencies (npm install)
 
 ## 🚀 Installation

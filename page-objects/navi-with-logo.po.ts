@@ -20,15 +20,15 @@ export class NavWithLogoComponent {
     }
 
     get logInButton() {
-        return this.modalLocator.locator('a', { hasText: 'Logowanie' });
+        return this.modalLocator.getByRole('link', { name: 'Logowanie' });
     }
 
     get openAccountButton() {
-        return this.modalLocator.locator('a', { hasText: 'Załóż konto' });
+        return this.modalLocator.getByRole('link', { name: 'Załóż konto' });
     }
 
     get borrowMoneyButton() {
-        return this.modalLocator.locator('a', { hasText: 'Pożycz gotówkę' });
+        return this.modalLocator.getByRole('link', { name: 'Pożycz gotówkę' });
     }
 
     async waitForLoaded(element: Locator): Promise<void> {
